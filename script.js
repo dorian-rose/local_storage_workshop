@@ -1,49 +1,83 @@
 document.addEventListener("DOMContentLoaded", () => {
-  let shopping = JSON.parse(localStorage.getItem("shopping")) || [];
-
   //document variables
   let products = document.querySelector("#products");
   let storedItems = document.querySelector("#stored-items");
   let empty = document.querySelector("#empty");
   let fragment = document.createDocumentFragment();
 
+  //original list of fruit
+  const originalArray = [
+    { id: "apple", product: "apple" },
+    { id: "mango", product: "mango" },
+    { id: "strawberry", product: "strawberry" },
+    { id: "peach", product: "peach" },
+    { id: "pear", product: "pear" },
+    { id: "orange", product: "orange" },
+    { id: "mandarin", product: "mandarin" },
+  ];
+
+  let shoppingSelected = JSON.parse(localStorage.getItem("shopping")) || [];
   //event listeners
-  products.addEventListener("click", ({ target }) => {
-    chooseFunction({ target });
+  document.addEventListener("click", ({ target }) => {
+    if (target.matches(".add")) {
+      const id = target.parentElement.id;
+      addToSelectedList(id);
+      printStoredList();
+    }
+
+    if (target.matches(".remove")) {
+      const id = target.parentElement.id;
+      removeFromList(id);
+      printStoredList();
+    }
   });
+
   empty.addEventListener("click", () => {
     deleteAll();
   });
 
   //functions
-  const chooseFunction = ({ target }) => {
-    if (target.matches(".add")) {
-      addToList({ target });
-    } else {
-      if (target.matches(".remove")) {
-        removeFromList({ target });
-      }
+  //print first list
+  const printOriginalList = () => {
+    originalArray.forEach(({ id, product }) => {
+      const listElement = document.createElement("LI");
+      listElement.id = id;
+      listElement.innerHTML = `${product}
+                                        <button class="add">add</button>`;
+
+      fragment.append(listElement);
+    });
+    products.append(fragment);
+  };
+
+  //add product to list of selected products
+  const addToSelectedList = (id) => {
+    const productFound = originalArray.find((item) => {
+      return item.id == id;
+    });
+    const productAlready = shoppingSelected.find((item) => {
+      return item.id == id;
+    });
+    if (!productAlready) {
+      shoppingSelected.push(productFound);
+      setLocal();
+    }
+    console.log(productFound);
+    // shoppingSelected.push(productFound);
+    // setLocal();
+  };
+
+  //remove item from list
+  const removeFromList = (id) => {
+    const elementIndex = shoppingSelected.findIndex((item) => item.id == id);
+    if (elementIndex != -1) {
+      shoppingSelected.splice(elementIndex, 1);
+      setLocal();
     }
   };
-  const addToList = ({ target }) => {
-    let product = {};
-    product.id = target.parentElement.id;
-    product.name = target.parentElement.children[0].textContent;
-    shopping.push(product);
-    setLocal(shopping);
-    printStoredList();
-  };
 
-  const removeFromList = ({ target }) => {
-    let id = target.parentElement.id;
-    const newList = shopping.filter((item) => item.id != id);
-    setLocal(newList);
-    shopping = getLocal();
-    printStoredList();
-  };
-
-  setLocal = (updatedList) => {
-    return localStorage.setItem("shopping", JSON.stringify(updatedList));
+  setLocal = () => {
+    return localStorage.setItem("shopping", JSON.stringify(shoppingSelected));
   };
   getLocal = () => {
     return JSON.parse(localStorage.getItem("shopping")) || [];
@@ -51,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const deleteAll = () => {
     localStorage.clear();
-    shopping = [];
+    shoppingSelected = [];
     printStoredList([]);
   };
 
@@ -59,12 +93,14 @@ document.addEventListener("DOMContentLoaded", () => {
     storedItems.innerHTML = "";
     const productsToPrint = getLocal();
     productsToPrint.forEach((item) => {
-      let listItem = document.createElement("li");
-      listItem.textContent = item.name;
+      const listItem = document.createElement("li");
+      listItem.id = item.id;
+      listItem.innerHTML = `${item.product}<button class="remove">remove</button>`;
       fragment.append(listItem);
     });
     storedItems.append(fragment);
   };
 
+  printOriginalList();
   printStoredList();
 }); //LOAD
