@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const listElement = document.createElement("LI");
       listElement.id = id;
       listElement.innerHTML = `${product}
-                                        <button class="add">add</button>`;
+                                        <button class="add"><i class="fa-solid fa-cart-plus"></i></i></button>`;
 
       fragment.append(listElement);
     });
@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
     productsToPrint.forEach((item) => {
       const listItem = document.createElement("li");
       listItem.id = item.id;
-      listItem.innerHTML = `${item.count}x ${item.product}<button class="remove">remove</button>`;
+      listItem.innerHTML = `${item.count}x ${item.product}<button class="remove"><i class="fa-solid fa-trash"></i></button>`;
       fragment.append(listItem);
     });
     storedItems.append(fragment);
