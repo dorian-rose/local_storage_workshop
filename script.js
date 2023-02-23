@@ -7,13 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   //original list of fruit
   const originalArray = [
-    { id: "apple", product: "apple" },
-    { id: "mango", product: "mango" },
-    { id: "strawberry", product: "strawberry" },
-    { id: "peach", product: "peach" },
-    { id: "pear", product: "pear" },
-    { id: "orange", product: "orange" },
-    { id: "mandarin", product: "mandarin" },
+    { id: "apple", product: "apple", count: 1 },
+    { id: "mango", product: "mango", count: 1 },
+    { id: "strawberry", product: "strawberry", count: 1 },
+    { id: "peach", product: "peach", count: 1 },
+    { id: "pear", product: "pear", count: 1 },
+    { id: "orange", product: "orange", count: 1 },
+    { id: "mandarin", product: "mandarin", count: 1 },
   ];
 
   let shoppingSelected = JSON.parse(localStorage.getItem("shopping")) || [];
@@ -52,27 +52,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   //add product to list of selected products
   const addToSelectedList = (id) => {
-    const productFound = originalArray.find((item) => {
-      return item.id == id;
-    });
-    const productAlready = shoppingSelected.find((item) => {
-      return item.id == id;
-    });
+    const productFound = originalArray.find((item) => item.id == id);
+    const productAlready = shoppingSelected.find((item) => item.id == id);
     if (!productAlready) {
       shoppingSelected.push(productFound);
       setLocal();
+    } else {
+      productFound.count++;
+      setLocal();
     }
-    console.log(productFound);
     // shoppingSelected.push(productFound);
     // setLocal();
   };
 
   //remove item from list
   const removeFromList = (id) => {
-    const elementIndex = shoppingSelected.findIndex((item) => item.id == id);
-    if (elementIndex != -1) {
-      shoppingSelected.splice(elementIndex, 1);
+    const productFound = shoppingSelected.find((item) => item.id == id);
+    if (productFound.count > 1) {
+      productFound.count--;
       setLocal();
+    } else {
+      const elementIndex = shoppingSelected.findIndex((item) => item.id == id);
+      if (elementIndex != -1) {
+        shoppingSelected.splice(elementIndex, 1);
+        setLocal();
+      }
     }
   };
 
@@ -84,8 +88,13 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const deleteAll = () => {
+    shoppingSelected.forEach((item) => {
+      item.count = 1;
+    });
+
     localStorage.clear();
     shoppingSelected = [];
+
     printStoredList([]);
   };
 
@@ -95,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
     productsToPrint.forEach((item) => {
       const listItem = document.createElement("li");
       listItem.id = item.id;
-      listItem.innerHTML = `${item.product}<button class="remove">remove</button>`;
+      listItem.innerHTML = `${item.count}x ${item.product}<button class="remove">remove</button>`;
       fragment.append(listItem);
     });
     storedItems.append(fragment);
